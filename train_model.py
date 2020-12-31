@@ -28,8 +28,8 @@ from build_model import Unet
 
 mean_iou=tf.keras.metrics.MeanIoU(2, name=None, dtype=None)
 # Set some parameters
-IMG_WIDTH = 384 
-IMG_HEIGHT = 216
+IMG_WIDTH = 256
+IMG_HEIGHT = 256
 IMG_CHANNELS = 3
 
 TRAIN_PATH = 'data_for_unet/train'#enter path to training data
@@ -55,7 +55,7 @@ print("Y_train",Y_train.shape)
 print('Getting and resizing train images and masks ... ')
 sys.stdout.flush()
 for n, id_ in tqdm(enumerate(train_ids), total=len(train_ids)):
-	path = TRAIN_PATH +"\\"+ id_
+	path = TRAIN_PATH +"/"+ id_
 	
 	img = cv2.imread(path + '/images/' + id_ + '.jpg')[:,:,:IMG_CHANNELS]
 	
@@ -73,7 +73,7 @@ sizes_test = []
 print('Getting and resizing test images ... ')
 sys.stdout.flush()
 for n, id_ in tqdm(enumerate(test_ids), total=len(test_ids)):
-    path = TEST_PATH + "\\"+id_
+    path = TEST_PATH + "/"+id_
     img = cv2.imread(path + '/images/' + id_ + '.jpg')[:,:,:IMG_CHANNELS]
     sizes_test.append([img.shape[0], img.shape[1]])
     img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
@@ -89,5 +89,5 @@ model.summary()
 
 earlystopper = EarlyStopping(patience=5, verbose=1)
 checkpointer = ModelCheckpoint('model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
-results = model.fit(X_train, Y_train, validation_split=0.1, batch_size=16, epochs=5, 
+results = model.fit(X_train, Y_train, validation_split=0.1, batch_size=32, epochs=50,steps_per_epoch=500, 
                     callbacks=[earlystopper, checkpointer])
