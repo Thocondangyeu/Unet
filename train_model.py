@@ -26,7 +26,7 @@ import cv2
 
 from build_model import Unet
 
-mean_iou=tf.keras.metrics.MeanIoU(2, name=None, dtype=None)
+#mean_iou=tf.keras.metrics.MeanIoU(2, name=None, dtype=None)
 # Set some parameters
 IMG_WIDTH = 256
 IMG_HEIGHT = 256
@@ -84,10 +84,11 @@ print('Done on loading data!')
 # Build U-Net model
 
 model=Unet(None,(IMG_HEIGHT,IMG_WIDTH,IMG_CHANNELS))
-model.compile(optimizer='adam', loss='binary_crossentropy', metrics=[mean_iou])
+model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"])
 model.summary()
 
-earlystopper = EarlyStopping(patience=5, verbose=1)
-checkpointer = ModelCheckpoint('model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
-results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=32, epochs=50,steps_per_epoch=500, 
-                    callbacks=[earlystopper, checkpointer])
+#earlystopper = EarlyStopping(patience=5, verbose=1)
+#checkpointer = ModelCheckpoint('model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
+results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50,steps_per_epoch=500,)
+                    #callbacks=[earlystopper, checkpointer])
+model.save("model.h5")
