@@ -89,6 +89,6 @@ model.summary()
 
 #earlystopper = EarlyStopping(patience=5, verbose=1)
 #checkpointer = ModelCheckpoint('model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
-results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50,steps_per_epoch=500,)
+results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50,steps_per_epoch=100)
                     #callbacks=[earlystopper, checkpointer])
 model.save("model.h5")
