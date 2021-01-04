@@ -37,6 +37,7 @@ def lightModel(input_height=256,input_width=256):
     out = Conv2D( 2, (1, 1) , padding='same')(conv5)
     model=Model(input=img_input,output=conv5)
     model.summary()
+    return model
 
 if __name__ == "__main__":
     model = lightModel()

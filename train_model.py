@@ -22,6 +22,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import backend as K
 import tensorflow as tf
 import cv2
+from model.light_model import lightModel
 
 
 from build_model import Unet
@@ -83,7 +84,7 @@ print('Done on loading data!')
 
 # Build U-Net model
 
-model=Unet(None,(IMG_HEIGHT,IMG_WIDTH,IMG_CHANNELS))
+model=lightModel(None,(IMG_HEIGHT,IMG_WIDTH,IMG_CHANNELS))
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"])
 model.summary()
 
@@ -92,4 +93,4 @@ model.summary()
 for i in range(100):
 	results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50,steps_per_epoch=100)
                     #callbacks=[earlystopper, checkpointer])
-	model.save("model.h5")
+	model.save("model/light-model.h5")
