@@ -22,10 +22,7 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import backend as K
 import tensorflow as tf
 import cv2
-from model.light_model import lightModel
-
-
-from build_model import Unet
+from Model.light_model import lightModel
 
 #mean_iou=tf.keras.metrics.MeanIoU(2, name=None, dtype=None)
 # Set some parameters
