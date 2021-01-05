@@ -37,6 +37,9 @@ def lightModel(pretrained_weights = None,input_size = (512,512,3)):
     out = Conv2D( 1, (1, 1) ,activation = "sigmoid", padding='same')(conv5)
     model=Model(input=img_input,output=out)
     model.summary()
+
+    if pretrained_weights:
+        model.load_weight(pretrained_weights)
     return model
 
 if __name__ == "__main__":
