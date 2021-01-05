@@ -31,7 +31,7 @@ IMG_HEIGHT = 256
 IMG_CHANNELS = 3
 
 TRAIN_PATH = 'data_for_unet/train'#enter path to training data
-TEST_PATH = 'data_for_unet/test'#enter path to testing data
+TEST_PATH = 'data_for_unet/test' #enter path to testing data
 
 warnings.filterwarnings('ignore', category=UserWarning, module='skimage')
 seed = 42
@@ -88,6 +88,6 @@ model.summary()
 #earlystopper = EarlyStopping(patience=5, verbose=1)
 #checkpointer = ModelCheckpoint('model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
 for i in range(100):
-	results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50,steps_per_epoch=100)
+	results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50)
                     #callbacks=[earlystopper, checkpointer])
-	model.save("model/light-model.h5")
+	model.save("Model/light-model.h5")
