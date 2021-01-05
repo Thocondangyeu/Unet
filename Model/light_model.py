@@ -39,7 +39,7 @@ def lightModel(pretrained_weights = None,input_size = (512,512,3)):
     model.summary()
 
     if pretrained_weights:
-        model.load_weight(pretrained_weights)
+        model.load_weights(pretrained_weights)
     return model
 
 if __name__ == "__main__":

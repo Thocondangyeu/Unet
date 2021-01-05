@@ -87,10 +87,11 @@ model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"]
 
 #earlystopper = EarlyStopping(patience=5, verbose=1)
 #checkpointer = ModelCheckpoint('model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
-results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50)
-model.save("Model/light-model.h5")
+#results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50)
+#model.save("Model/light-model.h5")
 for i in range(100):
 	model=lightModel("Model/light-model.h5",(IMG_HEIGHT,IMG_WIDTH,IMG_CHANNELS))
+	model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"])
 	results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50)
                     #callbacks=[earlystopper, checkpointer])
 	model.save("Model/light-model.h5")
