@@ -60,7 +60,7 @@ model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"]
 #results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50)
 #model.save("Model/light-model.h5")
 for i in range(30):
-  data = DataLoader()
+  data = DataLoader(dir  = TRAIN_PATH)
   for j in range(data.step):
     (X_train,y_train) = data.load()
     results = model.fit(X_train/255, y_train, validation_split=0.3, batch_size=16, epochs=50  , validation_data = (X_val , y_val))

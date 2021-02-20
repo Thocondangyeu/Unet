@@ -1,3 +1,9 @@
+import numpy as  np 
+import glob
+import cv2
+
+ 
+
 class DataLoader :
   def __init__(self , batch_size = 32 ,dir = "../data_for_unet/train"):
     self.batch_size = batch_size
@@ -7,9 +13,10 @@ class DataLoader :
     self.step   = int(self.number / self.batch_size) + 1
 
 
-  
-  def load(self):
-    N = len(train_dir)
+  def load(self, size =(512,512)):
+    IMG_HEIGHT  = size[0]
+    IMG_WIDTH   = size[1]
+    N = len(self.folder)
     X_train = []
     y_train = []
     for i in range(self.id , self.id + self.batch_size):
@@ -37,7 +44,9 @@ class DataLoader :
     X_train = np.array(X_train).astype(np.float64) * 1./255
     y_train = (np.array(y_train) >0 ).astype(np.float64)
     return (X_train , y_train)
-  def load_all(self):
+  def load_all(self, size =(512,512)):
+    IMG_HEIGHT  = size[0]
+    IMG_WIDTH   = size[1]
     X_train = []
     y_train = []
     for data in self.folder:
