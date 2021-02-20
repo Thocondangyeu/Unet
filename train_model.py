@@ -22,66 +22,97 @@ from keras.callbacks import EarlyStopping, ModelCheckpoint
 from keras import backend as K
 import tensorflow as tf
 import cv2
-from Model.light_model import lightModel
+from Model.build_model import Unet
+import glob
 
 #mean_iou=tf.keras.metrics.MeanIoU(2, name=None, dtype=None)
 # Set some parameters
-IMG_WIDTH = 256
-IMG_HEIGHT = 256
+IMG_WIDTH = 512
+IMG_HEIGHT = 512
 IMG_CHANNELS = 3
 
-TRAIN_PATH = 'data_for_unet/train'#enter path to training data
-TEST_PATH = 'data_for_unet/test' #enter path to testing data
+model=Unet(None,(IMG_HEIGHT,IMG_WIDTH,IMG_CHANNELS))
 
-warnings.filterwarnings('ignore', category=UserWarning, module='skimage')
-seed = 42
-random.seed = seed
-np.random.seed = seed
+TRAIN_PATH = "/content/drive/MyDrive/Unet/data_for_unet/train"#enter path to training data
+TEST_PATH = "/content/drive/MyDrive/Unet/data_for_unet/test" #enter path to testing data
 
-print("Imported all the dependencies")
+VALID_PATH = "/content/drive/MyDrive/Unet/data_for_unet/validation"
 
-# Get train and test IDs
-train_ids = next(os.walk(TRAIN_PATH))[1]
-test_ids = next(os.walk(TEST_PATH))[1]
+train_dir = glob.glob(TRAIN_PATH + "/*")
+test_dir = glob.glob(TEST_PATH + "/*")
+valid_dir = glob.glob(VALID_PATH + "/*")
 
-# Get and resize train images and masks
-X_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
-Y_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, 1), dtype=np.bool)
+#print(len(train_dir))
 
-print("X_train",X_train.shape)
-print("Y_train",Y_train.shape)
-print('Getting and resizing train images and masks ... ')
-sys.stdout.flush()
-for n, id_ in tqdm(enumerate(train_ids), total=len(train_ids)):
-	path = TRAIN_PATH +"/"+ id_
-	
-	img = cv2.imread(path + '/images/' + id_ + '.jpg')[:,:,:IMG_CHANNELS]
-	
-	img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
-	X_train[n] = img
-	mask = np.zeros((IMG_HEIGHT, IMG_WIDTH, 1), dtype=np.bool)
-	for mask_file in next(os.walk(path + '/masks/'))[2]:
-		mask_ = cv2.imread(path + '/masks/' + mask_file,0)
-		mask_ = np.expand_dims(resize(mask_, (IMG_HEIGHT, IMG_WIDTH), mode='constant',preserve_range=True), axis=-1)
-		mask = np.maximum(mask, mask_)
-	Y_train[n] = mask
-# Get and resize test images
-X_test = np.zeros((len(test_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS), dtype=np.uint8)
-sizes_test = []
-print('Getting and resizing test images ... ')
-sys.stdout.flush()
-for n, id_ in tqdm(enumerate(test_ids), total=len(test_ids)):
-    path = TEST_PATH + "/"+id_
-    img = cv2.imread(path + '/images/' + id_ + '.jpg')[:,:,:IMG_CHANNELS]
-    sizes_test.append([img.shape[0], img.shape[1]])
-    img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
-    X_test[n] = img
 
-print('Done on loading data!')
 
+class DataLoader :
+  def __init__(self , batch_size = 32 ,dir = "/content/drive/MyDrive/Unet/data_for_unet/train"):
+    self.batch_size = batch_size
+    self.id =  0
+    self.folder = glob.glob(dir + "/*")
+    self.number = len(self.folder)
+    self.step   = int(self.number / self.batch_size) + 1
+
+
+  
+  def load(self):
+    N = len(train_dir)
+    X_train = []
+    y_train = []
+    for i in range(self.id , self.id + self.batch_size):
+      if i == N :
+        self.id = 0 
+        break
+      data = self.folder[i]
+      print("processing image{}".format(data))
+      
+      image = cv2.imread(data + "/image.jpg")
+      if image is None :
+        continue
+      print("     {}".format(image.shape))
+      image = cv2.resize(image ,(IMG_HEIGHT,IMG_WIDTH))
+
+      mask  = cv2.imread(data + "/mask.png", 0)
+      if mask is None : continue
+      mask  = cv2.resize(mask ,(IMG_HEIGHT , IMG_WIDTH))
+
+      print("     {}".format(mask.shape))
+
+      X_train.append(image)
+      y_train.append(mask)
+    
+    X_train = np.array(X_train).astype(np.float64) * 1./255
+    y_train = (np.array(y_train) >0 ).astype(np.float64)
+    return (X_train , y_train)
+  def load_all(self):
+    X_train = []
+    y_train = []
+    for data in self.folder:
+      print("processing image{}".format(data))
+      
+      image = cv2.imread(data + "/image.jpg")
+      if image is None :
+        continue
+      print("     {}".format(image.shape))
+      image = cv2.resize(image ,(IMG_HEIGHT,IMG_WIDTH))
+
+      mask  = cv2.imread(data + "/mask.png", 0)
+      if mask is None : continue
+      mask  = cv2.resize(mask ,(IMG_HEIGHT , IMG_WIDTH))
+
+      print("     {}".format(mask.shape))
+
+      X_train.append(image)
+      y_train.append(mask)
+      X_train = np.array(X_train).astype(np.float64) * 1./255
+      y_train = (np.array(y_train) >0 ).astype(np.float64)
+      return (X_train , y_train)
+
+(X_val , y_val) = DataLoader(batch_size = 64 , dir =VALID_PATH).load_all()
 # Build U-Net model
 
-model=lightModel(None,(IMG_HEIGHT,IMG_WIDTH,IMG_CHANNELS))
+
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"])
 #model.summary()
 
@@ -89,9 +120,10 @@ model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"]
 #checkpointer = ModelCheckpoint('model-dsbowl2018-1.h5', verbose=1, save_best_only=True)
 #results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50)
 #model.save("Model/light-model.h5")
-for i in range(100):
-	model=lightModel("Model/light-model.h5",(IMG_HEIGHT,IMG_WIDTH,IMG_CHANNELS))
-	model.compile(optimizer='adam', loss='binary_crossentropy', metrics=["accuracy"])
-	results = model.fit(X_train/255, Y_train, validation_split=0.3, batch_size=16, epochs=50)
+for i in range(30):
+  data = DataLoader()
+  for j in range(data.step):
+    (X_train,y_train) = data.load()
+    results = model.fit(X_train/255, y_train, validation_split=0.3, batch_size=16, epochs=50  , validation_data = (X_val , y_val))
                     #callbacks=[earlystopper, checkpointer])
-	model.save("Model/light-model.h5")
+  model.save("Model/light-model.h5")
