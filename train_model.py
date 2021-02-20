@@ -24,6 +24,7 @@ import tensorflow as tf
 import cv2
 from Model.build_model import Unet
 import glob
+from utils.DataLoader import DataLoader
 
 #mean_iou=tf.keras.metrics.MeanIoU(2, name=None, dtype=None)
 # Set some parameters
